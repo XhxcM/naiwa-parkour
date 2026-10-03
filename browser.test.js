@@ -1,0 +1,30 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ const page=await browser.newPage({viewport:{width:1086,height:1448}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://localhost:4173');await page.waitForFunction(()=>world.renderer.info.render.calls>0);
+ await page.screenshot({path:'design/desktop.png'});
+ await page.getByRole('button',{name:'开始奔跑'}).click();
+ await page.keyboard.press('ArrowLeft');await page.waitForTimeout(180);assert.equal(await page.evaluate(()=>game.x),-1);
+ await page.keyboard.press('ArrowUp');await page.waitForTimeout(100);assert(await page.evaluate(()=>game.height>0));
+ await page.keyboard.press('ArrowRight');await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>game.x),0);
+ await page.getByRole('button',{name:'暂停游戏'}).click();assert(await page.getByRole('button',{name:'继续奔跑'}).isVisible());
+ const distance=await page.evaluate(()=>game.distance);await page.waitForTimeout(100);assert.equal(await page.evaluate(()=>game.distance),distance);
+ await page.getByRole('button',{name:'继续奔跑'}).click();
+ await page.evaluate(()=>{game.obstacles=[{lane:game.lane,z:game.distance+5,type:'rock'}];});
+ await page.getByRole('button',{name:'再跑一次'}).waitFor();await page.getByRole('button',{name:'再跑一次'}).click();assert(await page.evaluate(()=>game.distance<3&&game.lane===0));
+ const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+ const p=await mobile.newPage();p.on('pageerror',e=>errors.push(e.message));await p.goto('http://localhost:4173');await p.waitForFunction(()=>world.renderer.info.render.calls>0);
+ assert(await p.evaluate(()=>document.documentElement.scrollWidth===innerWidth));await p.screenshot({path:'design/mobile.png'});
+ await p.getByRole('button',{name:'开始奔跑'}).click();const cdp=await mobile.newCDPSession(p);
+ async function swipe(x,y,dx,dy){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+dx,y:y+dy}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
+ await swipe(195,650,-90,0);await p.waitForTimeout(180);assert.equal(await p.evaluate(()=>game.x),-1);
+ await swipe(100,650,90,0);await p.waitForTimeout(180);assert.equal(await p.evaluate(()=>game.x),0);
+ await swipe(195,650,0,-110);await p.waitForTimeout(150);assert(await p.evaluate(()=>game.height>0));
+ await p.screenshot({path:'design/playing.png'});
+ await p.setViewportSize({width:844,height:390});assert(await p.evaluate(()=>document.documentElement.scrollWidth===innerWidth));
+ assert.deepEqual(errors,[]);console.log('PASS: desktop keys, jump, airborne lane change, pause/resume, collision/restart, mobile touch left/right/up, portrait/landscape overflow, no JS errors.');
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

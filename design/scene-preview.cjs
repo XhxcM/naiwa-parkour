@@ -1,0 +1,2 @@
+const {chromium}=require('playwright');
+(async()=>{const browser=await chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage({viewport:{width:480,height:900},deviceScaleFactor:1});await page.goto('http://localhost:4173');await page.getByRole('button',{name:'开始奔跑'}).click();await page.evaluate(()=>{game.distance=35;game.obstacles=[{lane:-1,z:46,type:'log'},{lane:1,z:49,type:'rock'}];game.nextRow=80;});await page.screenshot({path:'design/scene-preview.png'});await browser.close();})();

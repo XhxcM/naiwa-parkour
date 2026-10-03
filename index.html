@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#193d30">
+  <title>林间疾跑 · 森林跑酷</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="game" aria-label="森林三道跑酷游戏">
+    <canvas id="scene" aria-label="游戏画面：上滑跳跃，左右滑动换道"></canvas>
+    <header><span class="brand">林间疾跑</span><div class="hud"><span id="score">000</span><span class="unit">m</span><button id="pause" aria-label="暂停游戏" hidden>Ⅱ</button></div></header>
+    <section id="panel" aria-labelledby="title">
+      <h1 id="title">林间疾跑</h1>
+      <p id="description">穿过森林，跑向更远的地方</p>
+      <button id="start">开始奔跑 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 10 7-10 7Z"/></svg></button>
+      <p id="detail">跨过倒木 · 绕开巨石</p>
+    </section>
+    <footer><span class="touch-help">上滑跳跃 · 左右滑动换道</span><span class="key-help">↑ / 空格 跳跃<span class="divider">·</span>← → 换道</span></footer>
+    <div id="notice" role="status" aria-live="polite"></div>
+  </main>
+  <script src="engine.js"></script>
+  <script src="vendor/three.min.js"></script>
+  <script src="world.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
