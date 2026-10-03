@@ -88,10 +88,15 @@ for (let seed = 1; seed <= 100; seed += 1) {
   game.start();
   game.tick(0.01);
   const rows = Object.groupBy(game.obstacles, obstacle => obstacle.z);
+  const rowPositions = Object.keys(rows).map(Number).sort((a, b) => a - b);
   for (const row of Object.values(rows)) {
     assert(row.length <= 2);
     assert.equal(new Set(row.map(obstacle => obstacle.lane)).size, row.length);
     assert(row.every(obstacle => Runner.OBSTACLE_RULES[obstacle.type]));
+  }
+  for (let index = 1; index < rowPositions.length; index += 1) {
+    const gap = rowPositions[index] - rowPositions[index - 1];
+    assert(gap >= 22 && gap <= 29);
   }
 }
 
