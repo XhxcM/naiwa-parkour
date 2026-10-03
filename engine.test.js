@@ -20,7 +20,7 @@ const encounter = (type, action) => {
 
 let game = empty();
 run(game, 1);
-assert(game.distance > 9);
+assert(game.distance > 11);
 assert.equal(game.lane, 0);
 game.move(-1);
 game.move(-1);
@@ -76,7 +76,7 @@ assert.equal(game.x, 0);
 assert.equal(game.obstacles.length, 0);
 game.distance = 5000;
 run(game, 1);
-assert.equal(game.speed, 20);
+assert.equal(game.speed, 22);
 
 for (let seed = 1; seed <= 100; seed += 1) {
   let value = seed;

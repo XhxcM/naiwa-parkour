@@ -17,7 +17,7 @@
     reset() {
       this.state = 'ready';
       this.distance = 0;
-      this.speed = 10;
+      this.speed = 12;
       this.lane = 0;
       this.x = 0;
       this.height = 0;
@@ -63,13 +63,13 @@
     spawnRow() {
       const safeLane = Math.floor(this.random() * 3) - 1;
       const blocked = [-1, 0, 1].filter(lane => lane !== safeLane);
-      if (this.random() < 0.42) blocked.splice(Math.floor(this.random() * blocked.length), 1);
+      if (this.random() < 0.3) blocked.splice(Math.floor(this.random() * blocked.length), 1);
       const types = ['fence', 'lowGate', 'highGate', 'tree'];
       blocked.forEach(lane => {
         const type = types[Math.floor(this.random() * types.length)];
         this.obstacles.push({ lane, z: this.nextRow, type });
       });
-      this.nextRow += 32 + this.random() * 9;
+      this.nextRow += 25 + this.random() * 8;
     }
 
     avoids(obstacle) {
@@ -86,7 +86,7 @@
       while (remaining > 0 && this.state === 'running') {
         const dt = Math.min(remaining, 1 / 120);
         remaining -= dt;
-        this.speed = Math.min(20, 10 + this.distance / 150);
+        this.speed = Math.min(22, 12 + this.distance / 130);
         this.distance += this.speed * dt;
         this.x += Math.max(-dt * 9, Math.min(dt * 9, this.lane - this.x));
 
