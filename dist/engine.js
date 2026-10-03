@@ -17,7 +17,8 @@
     reset() {
       this.state = 'ready';
       this.distance = 0;
-      this.speed = 12;
+      this.elapsed = 0;
+      this.speed = 15;
       this.lane = 0;
       this.x = 0;
       this.height = 0;
@@ -86,7 +87,8 @@
       while (remaining > 0 && this.state === 'running') {
         const dt = Math.min(remaining, 1 / 120);
         remaining -= dt;
-        this.speed = Math.min(22, 12 + this.distance / 130);
+        this.elapsed += dt;
+        this.speed = Math.min(28, 15 + this.elapsed * 0.22);
         this.distance += this.speed * dt;
         this.x += Math.max(-dt * 9, Math.min(dt * 9, this.lane - this.x));
 
