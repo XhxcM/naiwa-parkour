@@ -96,7 +96,7 @@ for (let seed = 1; seed <= 100; seed += 1) {
   }
   for (let index = 1; index < rowPositions.length; index += 1) {
     const gap = rowPositions[index] - rowPositions[index - 1];
-    assert(gap >= 22 && gap <= 29);
+    assert(gap >= 13 && gap <= 19);
   }
 }
 

@@ -70,7 +70,7 @@
         const type = types[Math.floor(this.random() * types.length)];
         this.obstacles.push({ lane, z: this.nextRow, type });
       });
-      this.nextRow += 22 + this.random() * 7;
+      this.nextRow += 13 + this.random() * 6;
     }
 
     avoids(obstacle) {
