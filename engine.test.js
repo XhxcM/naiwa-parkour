@@ -82,22 +82,46 @@ const cappedSpeed = game.speed;
 run(game, 10);
 assert.equal(game.speed, cappedSpeed);
 
-for (let seed = 1; seed <= 100; seed += 1) {
+let fullRowCount = 0;
+for (let seed = 1; seed <= 200; seed += 1) {
   let value = seed;
   game = new Runner(() => ((value = (value * 1664525 + 1013904223) >>> 0) / 2 ** 32));
   game.start();
-  game.tick(0.01);
+  for (let row = 0; row < 120; row += 1) game.spawnRow();
   const rows = Object.groupBy(game.obstacles, obstacle => obstacle.z);
   const rowPositions = Object.keys(rows).map(Number).sort((a, b) => a - b);
-  for (const row of Object.values(rows)) {
-    assert(row.length <= 2);
+  const openStreaks = [0, 0, 0];
+  let lastFullRow = -3;
+
+  rowPositions.forEach((position, rowIndex) => {
+    const row = rows[position];
+    const blockedLanes = new Set(row.map(obstacle => obstacle.lane));
+    const openLanes = [-1, 0, 1].filter(lane => !blockedLanes.has(lane));
+    const hasActionRoute = row.some(obstacle => Runner.OBSTACLE_RULES[obstacle.type].dodges.some(dodge => dodge === 'jump' || dodge === 'roll'));
+
+    assert(row.length >= 1 && row.length <= 3);
     assert.equal(new Set(row.map(obstacle => obstacle.lane)).size, row.length);
     assert(row.every(obstacle => Runner.OBSTACLE_RULES[obstacle.type]));
-  }
+    assert(openLanes.length > 0 || hasActionRoute);
+
+    if (row.length === 3) {
+      fullRowCount += 1;
+      assert(rowIndex - lastFullRow >= 3);
+      lastFullRow = rowIndex;
+    }
+
+    [-1, 0, 1].forEach(lane => {
+      const index = lane + 1;
+      openStreaks[index] = openLanes.includes(lane) ? openStreaks[index] + 1 : 0;
+      assert(openStreaks[index] <= 2);
+    });
+  });
+
   for (let index = 1; index < rowPositions.length; index += 1) {
     const gap = rowPositions[index] - rowPositions[index - 1];
     assert(gap >= 13 && gap <= 19);
   }
 }
+assert(fullRowCount > 0);
 
-console.log('PASS: running, lane limits, jump/spin state, roll state, four obstacle rules, dodge, restart, speed cap, 100 generated courses.');
+console.log('PASS: controls, obstacle rules, speed cap, and 24,000 generated rows with rotating open lanes and playable full rows.');

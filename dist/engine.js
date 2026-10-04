@@ -29,6 +29,8 @@
       this.rollDuration = 0.78;
       this.obstacles = [];
       this.nextRow = 46;
+      this.openLaneStreaks = [0, 0, 0];
+      this.rowsSinceFull = 2;
       this.reason = '';
     }
 
@@ -62,12 +64,38 @@
     }
 
     spawnRow() {
-      const safeLane = Math.floor(this.random() * 3) - 1;
-      const blocked = [-1, 0, 1].filter(lane => lane !== safeLane);
-      if (this.random() < 0.3) blocked.splice(Math.floor(this.random() * blocked.length), 1);
+      const lanes = [-1, 0, 1];
       const types = ['fence', 'lowGate', 'highGate', 'tree'];
+      const actionTypes = ['fence', 'lowGate', 'highGate'];
+      const fullRow = this.rowsSinceFull >= 2 && this.random() < 0.18;
+      let blocked;
+      let guaranteedActionLane = null;
+
+      if (fullRow) {
+        blocked = lanes;
+        guaranteedActionLane = lanes[Math.floor(this.random() * lanes.length)];
+        this.openLaneStreaks.fill(0);
+        this.rowsSinceFull = 0;
+      } else {
+        const eligibleOpenLanes = lanes.filter(lane => this.openLaneStreaks[lane + 1] < 2);
+        let openCount = this.random() < 0.3 ? 2 : 1;
+        openCount = Math.min(openCount, eligibleOpenLanes.length);
+        const openLanes = [];
+        while (openLanes.length < openCount) {
+          const index = Math.floor(this.random() * eligibleOpenLanes.length);
+          openLanes.push(eligibleOpenLanes.splice(index, 1)[0]);
+        }
+        blocked = lanes.filter(lane => !openLanes.includes(lane));
+        lanes.forEach(lane => {
+          const index = lane + 1;
+          this.openLaneStreaks[index] = openLanes.includes(lane) ? this.openLaneStreaks[index] + 1 : 0;
+        });
+        this.rowsSinceFull += 1;
+      }
+
       blocked.forEach(lane => {
-        const type = types[Math.floor(this.random() * types.length)];
+        const pool = lane === guaranteedActionLane ? actionTypes : types;
+        const type = pool[Math.floor(this.random() * pool.length)];
         this.obstacles.push({ lane, z: this.nextRow, type });
       });
       this.nextRow += 13 + this.random() * 6;
